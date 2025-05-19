@@ -53,16 +53,21 @@ export const invoiceService = {
 
       // Return the created invoice with items
       const { data, error } = await this.getInvoiceById(invoiceId);
-      return { data, error };
-    } catch (error) {
-      return { data: null, error };
+      return { data, error };    } catch (error: unknown) {
+      return { 
+        data: null, 
+        error: { 
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
+          details: error
+        } 
+      };
     }
   },
 
   /**
    * Get all invoices for a user
    */
-  async getInvoices(userId: string): Promise<{ data: Invoice[] | null, error: any }> {
+  async getInvoices(userId: string): Promise<{ data: Invoice[] | null, error: ServiceError | null }> {
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
@@ -75,7 +80,7 @@ export const invoiceService = {
   /**
    * Get invoice by ID with items
    */
-  async getInvoiceById(id: string): Promise<{ data: InvoiceWithItems | null, error: any }> {
+  async getInvoiceById(id: string): Promise<{ data: InvoiceWithItems | null, error: ServiceError | null }> {
     // Get invoice
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
@@ -109,7 +114,7 @@ export const invoiceService = {
   /**
    * Delete an invoice and its items
    */
-  async deleteInvoice(id: string): Promise<{ error: any }> {
+  async deleteInvoice(id: string): Promise<{ error: ServiceError | null }> {
     // Items will be automatically deleted due to CASCADE constraint
     const { error } = await supabase
       .from('invoices')
@@ -167,9 +172,14 @@ export const invoiceService = {
 
       // Return the updated invoice with items
       const { data, error } = await this.getInvoiceById(id);
-      return { data, error };
-    } catch (error) {
-      return { data: null, error };
+      return { data, error };    } catch (error: unknown) {
+      return { 
+        data: null, 
+        error: { 
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
+          details: error
+        } 
+      };
     }
   }
 };
